@@ -65,13 +65,10 @@ for jj=1:length(f)
   % Remove the mean of each segment.
   data = bsxfun(@minus, data, mean(data));                          % (4)
   
-  % Multiply each segment with the window function
+  % Compute the discrete Fourier transform
   window = windowfcn(L(jj));                                        % (5)
-  data = bsxfun(@times, data, window);
-  
-  % Compute the discrete Fourier transforms
-  sinusoid = exp(-2i*pi * (0:L(jj)-1)' * m(jj)/L(jj));              % (6)
-  data = bsxfun(@times, data, sinusoid);
+  sinusoid = exp(-2i*pi * (0:L(jj)-1)' * m(jj)/L(jj));              % (6)  
+  data = bsxfun(@times, data, sinusoid .* window);                  % (5,6)
   
   % Average the squared magnitudes
   X(jj) = mean(abs(sum(data)).^2);                                  % (8)
