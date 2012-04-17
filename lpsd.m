@@ -22,9 +22,9 @@ jj = 0:Jdes-1;
 
 g = log(fmax) - log(fmin);                                          % (12)
 
-f = fmin * exp((jj * g) / (Jdes - 1));                              % (13)
+f =  fmin * exp(jj * g / (Jdes - 1));                               % (13)
 
-rp = fmin * exp(jj * g / (Jdes -1)) * (exp(g / (Jdes - 1)) - 1);    % (15)
+rp = fmin * exp(jj * g / (Jdes - 1)) * (exp(g / (Jdes - 1)) - 1);   % (15)
 
 ravg = (fs/N) * (1 + (1 - xi) * (Kdes - 1));                        % (16)
 rmin = (fs/N) * (1 + (1 - xi) * (Kmin - 1));                        % (17)
@@ -41,7 +41,6 @@ rpp( case3 ) = rmin;                                                % (18)
 
 L = round(fs ./ rpp);       % segment lengths                       % (19)
 r = fs ./ L;                % actual resolution                     % (20)
-
 m = f ./ r;                 % Fourier Tranform bin number           % (7) 
 
 % Begin the loop over frequencies
