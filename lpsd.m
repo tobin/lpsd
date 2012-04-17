@@ -1,7 +1,10 @@
 % Power spectrum estimation with a logarithmic frequency axis
 %
-% Implementation of the algorithm described by Trobs and Heinzel in
-% _Measurement_, vol 39 (2006), pp 120-129.
+% Implementation of the algorithm described by Tröbs and Heinzel in
+% _Measurement_, vol 39 (2006), pp 120-129, available here:
+% 
+% * http://dx.doi.org/10.1016/j.measurement.2005.10.010
+% * http://pubman.mpdl.mpg.de/pubman/item/escidoc:150688:1/component/escidoc:150687/sdarticle.pdf
 %
 % Tobin Fricke
 % tobin.fricke@ligo.org
