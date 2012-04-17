@@ -64,15 +64,15 @@ for jj=1:length(f)
   data = reshape(data, L(jj), K);
   
   % Remove the mean of each segment.
-  data = data - repmat(mean(data), L(jj), 1);                       % (4)
+  data = bsxfun(@minus, data, mean(data));                          % (4)
   
   % Multiply each segment with the window function
   window = windowfcn(L(jj));                                        % (5)
-  data = data .* repmat(window, 1, K);
+  data = bsxfun(@times, data, window);
   
   % Compute the discrete Fourier transforms
   sinusoid = exp(-2i*pi * (0:L(jj)-1)' * m(jj)/L(jj));              % (6)
-  data = data .* repmat(sinusoid, 1, K);
+  data = bsxfun(@times, data, sinusoid);
   
   % Average the squared magnitudes
   X(jj) = mean(abs(sum(data)).^2);                                  % (8)

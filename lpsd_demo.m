@@ -14,11 +14,19 @@ xi = 0;         % fractional overlap
 
 x = randn(N, 1);
 
+tic
 [X, f, C] = lpsd(x, @hanning, fmin, fmax, Jdes, Kdes, Kmin, fs, xi);
+toc
+
 
 %% Compare to Pwelch
+
 nfft = ceil(fs/fmin);
+
+tic
 [Pxx, f_Pwelch] = pwelch(x, hanning(nfft), 0, nfft, fs);
+toc
+
 loglog(f_Pwelch, Pxx, 'color', [0 0.5 0]);
 hold all
 loglog(f, X .* C.PSD, 'color', [0 0.8 0], 'linewidth', 5);
