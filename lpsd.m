@@ -10,25 +10,13 @@
 % tobin.fricke@ligo.org
 % 2012-04-17
 
-%function X = lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes)
+function [X, f, C] = lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi)
 
-N = 1e5;
-fs = 2;
-fmin = fs/N;
-fmax = fs/2;
-Jdes = 1000;
-Kdes = 100;
-Kmin = 2;       % minimum number of averages
-xi = 0;         % Overlap  FIXME: NOT IMPLEMENTED
-windowfcn = @hanning;
-
-x = randn(N, 1);
-
-N = length(x);  % Table 1
-
-
+% x:     time series to be transformed
 % Jdes:  desired number of Fourier frequencies
 % Kdes:  desired number of averages
+ 
+N = length(x);                                                   % Table 1
 
 jj = 0:Jdes-1;
 
@@ -38,7 +26,6 @@ f = fmin * exp((jj * g) / (Jdes - 1));                              % (13)
 
 rp = fmin * exp(jj * g / (Jdes -1)) * (exp(g / (Jdes - 1)) - 1);    % (15)
 
-%%
 ravg = (fs/N) * (1 + (1 - xi) * (Kdes - 1));                        % (16)
 rmin = (fs/N) * (1 + (1 - xi) * (Kmin - 1));                        % (17)
 
@@ -57,13 +44,7 @@ r = fs ./ L;                % actual resolution                     % (20)
 
 m = f ./ r;                 % Fourier Tranform bin number           % (7) 
 
-loglog(f, r, '.-', f, L, '.-', f, N./L, '.-')
-line(get(gca,'xlim'), Kmin*[1 1], 'color', 'r');
-line(get(gca,'xlim'), Kdes*[1 1], 'color', 'r');
-legend('resolution', 'segment length', 'number of averages', 'minimum averages', 'desired averages');
-
-%%
-
+% Begin the loop over frequencies
 
 X = NaN(1, Jdes);
 S1= NaN(1, Jdes);
@@ -105,14 +86,8 @@ end
 
 % Calculate the calibration factors
 
-C_PS = 2 * S1.^(-2);                                                % (28)
-C_PSD = 2 ./ (fs * S2);                                             % (29)
+C.PS = 2 * S1.^(-2);                                                % (28)
+C.PSD = 2 ./ (fs * S2);                                             % (29)
 
-%% Compare to Pwelch
-nfft = ceil(fs/r(1));
-[Pxx, f_Pwelch] = pwelch(x, hanning(nfft), 0, nfft, fs);
-loglog(f_Pwelch, Pxx, 'color', [0 0.5 0]);
-hold all
-loglog(f, X .* C_PSD, 'color', [0 0.8 0], 'linewidth', 5);
-hold off
+end
 
