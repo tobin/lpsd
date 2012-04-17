@@ -10,7 +10,7 @@ Jdes = 1000;    % desired number of points in the spectrum
 Kdes = 100;     % desired number of averages
 Kmin = 2;       % minimum number of averages
 
-xi = 0;         % fractional overlap
+xi = 0.5;       % fractional overlap
 
 x = randn(N, 1);
 

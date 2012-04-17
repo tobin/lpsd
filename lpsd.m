@@ -47,20 +47,16 @@ m = f ./ r;                 % Fourier Tranform bin number           % (7)
 
 X = NaN(1, Jdes);
 S1= NaN(1, Jdes);
-S2= NaN(1, Jdes);
-
-% Nonzero segment overlap is not yet implemented
-assert(xi==0);  
+S2= NaN(1, Jdes);  
 
 for jj=1:length(f)
-  % Split the data stream into segments of length L(jj)
-  K = floor(N / L(jj));  % number of averages
-  
-  % select all the segments we can without zero-padding
-  data = x(1:(K*L(jj)));
-  
+  % Calculate the number of segments
+  D = round( (1 - xi) * L(jj) );                                    % (2)
+  K = floor( (N - L(jj)) / D + 1);                                  % (3)
+       
   % reshape the time series so each column is one segment
-  data = reshape(data, L(jj), K);
+  ii = bsxfun(@plus, (1:L(jj))', D*(0:K-1));
+  data = x(ii);
   
   % Remove the mean of each segment.
   data = bsxfun(@minus, data, mean(data));                          % (4)
@@ -77,7 +73,6 @@ for jj=1:length(f)
   % during calibration  
   S1(jj) = sum(window);                                             % (23)
   S2(jj) = sum(window.^2);                                          % (24)
-
 end
 
 % Calculate the calibration factors
