@@ -34,7 +34,7 @@ function [Pxx, f, C] = lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi)
 %     from digitized time series on a logarithmic frequency axis," in
 %     Measurement, vol 39 (2006), pp 120-129.
 %       * http://dx.doi.org/10.1016/j.measurement.2005.10.010
-%       * http://pubman.mpdl.mpg.de/pubman/item/escidoc:150688:1/component/escidoc:150687/sdarticle.pdf
+%       * http://pubman.mpdl.mpg.de/pubman/item/escidoc:150688:1
 %
 %     [2] Michael Tröbs and Gerhard Heinzel, Corrigendum to "Improved 
 %     spectrum estimation from digitized time series on a logarithmic 
