@@ -111,13 +111,16 @@ for jj=1:length(f)
   % Remove the mean of each segment.
   data = bsxfun(@minus, data, mean(data));                          % (4)
   
-  % Compute the discrete Fourier transform
-  window = windowfcn(L(jj));                                        % (5)
-  sinusoid = exp(-2i*pi * (0:L(jj)-1)' * m(jj)/L(jj));              % (6)  
-  data = bsxfun(@times, data, sinusoid .* window);                  % (5,6)
-  
+  % Apply the windowing function
+  window = windowfcn(L(jj));                                        % (5)  
+  data = bsxfun(@times, data, window);                              % (5,6)
+
+  % Compute the discrete Fourier transform using the Goertzel algorithm
+  alpha = 2*cos(2*pi*m(jj)/L(jj));
+  data = filter(1, [1 -alpha 1], data);
+    
   % Average the squared magnitudes
-  Pxx(jj) = mean(abs(sum(data)).^2);                                % (8)
+  Pxx(jj) = mean(data(end-1,:).^2 + data(end,:).^2 - alpha*data(end,:).*data(end-1,:));    
   
   % Calculate some properties of the window function which will be used
   % during calibration  
