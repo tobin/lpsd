@@ -30,15 +30,20 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
     
     Author(s): Tobin Fricke <tobin.fricke@ligo.org> 2012-04-17
 
-    :param x: time series to be transformed
+    :param x: time series to be transformed. "We assume to have a long stream x(n), n=0, ..., N-1 of equally spaced
+        input data sampled with frequency fs. Typical values for N range from 10^4 to >10^6" - Section 8 of [1]
     
-    :param windowfcn: function handle to windowing function (e.g. @hanning)
+    :param windowfcn: function handle to windowing function (e.g. @hanning) "Choose a window function w(j, l) to reduce
+        spectral leakage within the estimate. ... The computations of the window function will be performed when the
+        segment lengths L(j) have been determined." - Section 8 of [1]
     
-    :param fmin: lowest frequency to estimate
+    :param fmin: lowest frequency to estimate. "... we propose not to use the first few frequency bins. The first
+        frequency bin that yields unbiased spectral estimates depends on the window function used. The bin is given by
+        the effective half-width of the window transfer function." - Section 7 of [1].
     
     :param fmax: highest frequency to estimate
     
-    :param Jdes: desired number of Fourier frequencies
+    :param Jdes: desired number of Fourier frequencies. "A typical value for J is 1000" - Section 8 of [1]
     
     :param Kdes: desired number of averages
     
@@ -46,7 +51,8 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
     
     :param fs: sampling rate
     
-    :param xi: fractional overlap between segments (0 <= xi < 1)
+    :param xi: fractional overlap between segments (0 <= xi < 1). See Figures 5 and 6. "The amount of overlap is a
+        trade-off between computational effort and flatness of the data weighting." [1]
     
     :return: Pxx, f, C
     
@@ -83,7 +89,7 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
         raise ValueError("The Nyquist rate is {}, byt fmax={}".format(float(fs) / 2, fmax))
 
     g = np.log(fmax) - np.log(fmin)  # (12)
-    f =  fmin * np.exp(jj * g / float(Jdes - 1))  # (13)
+    f = fmin * np.exp(jj * g / float(Jdes - 1))  # (13)
     rp = fmin * np.exp(jj * g / float(Jdes - 1)) * (np.exp(g / float(Jdes - 1)) - 1)  # (15)
 
     # r' now contains the 'desired resolutions' for each frequency bin, given the rule that we want the resolution to be
@@ -109,7 +115,7 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
     # r'' contains adjusted frequency resolutions, accounting for the finite length of the data, the constraint of the
     # minimum number of averages, and the desired number of averages.  We now round r'' to the nearest bin of the DFT
     # to get our final resolutions r.
-    L = np.round(float(fs) / rpp)  # segment lengths (19)
+    L = np.around(float(fs) / rpp).astype(int)  # segment lengths (19)
     r = float(fs) / L  # actual resolution (20)
     m = f / r  # Fourier Tranform bin number (7)
 
@@ -120,23 +126,26 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
 
     # Loop over frequencies.  For each frequency, we basically conduct Welch's method with the fourier transform length
     # chosen differently for each frequency.
+    # TODO: Try to eliminate the for loop completely, since it is unpythonic and slow. Maybe write doctests first...
     for jj in range(len(f)):
 
         # Calculate the number of segments
-        D = np.round((1 - xi) * L[jj])  # (2)
-        K = np.floor((N - L[jj]) / float(D) + 1)  # (3)
+        D = int(np.around((1 - xi) * L[jj]))  # (2)
+        K = int(np.floor((N - L[jj]) / float(D) + 1))  # (3)
 
-        # reshape the time series so each column is one segment
-        ii = bsxfun(@plus, np.arange(L[jj]).T, D * np.arange(K))  # selector matrix (5)
-        data = x[ii]
+        # reshape the time series so each column is one segment  <-- FIXME: This is not clear.
+        a = np.arange(1, L[jj] + 1)
+        b = D * np.arange(K)
+        ii = a[:, np.newaxis] + b  # Selection matrix
+        data = x[ii]  # x(l+kD(j)) in (5)
 
         # Remove the mean of each segment.
-        data = bsxfun(@minus, data, np.mean(data))  # (4)
+        data -= np.mean(data, axis=0)  # (4) & (5)
 
         # Compute the discrete Fourier transform
         window = windowfcn(L[jj])  # (5)
-        sinusoid = np.exp(-2j * np.pi * np.arange(L[jj]).T * m(jj) / L(jj))  # (6)
-        data = bsxfun(@times, data, sinusoid * window)  # (5,6)
+        sinusoid = np.exp(-2j * np.pi * np.arange(L[jj])[:, np.newaxis] * m[jj] / L[jj])  # (6)
+        data = data * (sinusoid * window[:, np.newaxis])  # (5,6)
 
         # Average the squared magnitudes
         Pxx[jj] = np.mean(np.abs(np.sum(data)) ** 2)  # (8)
@@ -151,4 +160,4 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
         'PSD': 2. / (fs * S2)  # (29)
     }
 
-    return Pxx, f#, C
+    return Pxx, f, C

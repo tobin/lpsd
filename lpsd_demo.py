@@ -24,6 +24,7 @@ def main():
 
     plt.figure()
     plt.plot(f, X)
+    plt.xscale('log')
     plt.show()
 
 
