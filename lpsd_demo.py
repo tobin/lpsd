@@ -23,7 +23,7 @@ def main():
     # loglog(f, X .* C.PSD, 'color', [0 0.8 0], 'linewidth', 5)  # TODO translate to Python
 
     plt.figure()
-    plt.plot(f, X)
+    plt.stem(f, X)
     plt.xscale('log')
     plt.show()
 

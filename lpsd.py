@@ -134,7 +134,7 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
         K = int(np.floor((N - L[jj]) / float(D) + 1))  # (3)
 
         # reshape the time series so each column is one segment  <-- FIXME: This is not clear.
-        a = np.arange(1, L[jj] + 1)
+        a = np.arange(L[jj])
         b = D * np.arange(K)
         ii = a[:, np.newaxis] + b  # Selection matrix
         data = x[ii]  # x(l+kD(j)) in (5)
