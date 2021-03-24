@@ -148,11 +148,11 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
         data = data * (sinusoid * window[:, np.newaxis])  # (5,6)
 
         # Average the squared magnitudes
-        Pxx[jj] = np.mean(np.abs(np.sum(data)) ** 2)  # (8)
+        Pxx[jj] = np.mean(np.abs(np.sum(data, axis=0)) ** 2)  # (8)
 
         # Calculate some properties of the window function which will be used during calibration
-        S1[jj] = sum(window)  # (23)
-        S2[jj] = sum(window ** 2)  # (24)
+        S1[jj] = np.sum(window)  # (23)
+        S2[jj] = np.sum(window ** 2)  # (24)
 
     # Calculate the calibration factors
     C = {
