@@ -2,6 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from lpsd import lpsd
+from scipy import signal
 
 
 def main():
@@ -18,13 +19,12 @@ def main():
 
     # Compare to Pwelch
     nfft = np.ceil(fs / float(fmin))
-    # Pxx, f_Pwelch = pwelch(x, hanning(nfft), 0, nfft, fs)  # TODO translate to Python
-    # loglog(f_Pwelch, Pxx, 'color', [0 0.5 0])  # TODO translate to Python
-    # loglog(f, X .* C.PSD, 'color', [0 0.8 0], 'linewidth', 5)  # TODO translate to Python
-
+    window = np.hanning(nfft)
+    f_Pwelch, Pxx = signal.welch(x, fs, window, nfft=nfft, scaling='density')
+    
     plt.figure()
-    plt.stem(f, X)
-    plt.xscale('log')
+    plt.loglog(f_Pwelch, Pxx)
+    plt.loglog(f, X*C['PSD'])
     plt.show()
 
 
