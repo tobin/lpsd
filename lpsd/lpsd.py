@@ -85,12 +85,9 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
 
     if not (fmin >= float(fs) / N):  # Lowest frequency possible
         raise ValueError(
-            """
-            The lowest possible frequency is {}, but fmin={}
-            """.format(
-                float(fs) / N
-            ),
-            fmin,
+            "The lowest possible frequency is {}, but fmin={}".format(
+                float(fs) / N, fmin
+            )
         )
     if not (fmax <= float(fs) / 2):  # Nyquist rate
         raise ValueError(
