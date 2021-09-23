@@ -83,30 +83,24 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
     N = len(x)  # Table 1
     jj = np.arange(Jdes, dtype=int)  # Table 1
 
-    if not (fmin >= float(fs) / N):  # Lowest frequency possible
+    if not (fmin >= fs / N):  # Lowest frequency possible
         raise ValueError(
-            "The lowest possible frequency is {}, but fmin={}".format(
-                float(fs) / N, fmin
-            )
+            "The lowest possible frequency is {}, but fmin={}".format(fs / N, fmin)
         )
-    if not (fmax <= float(fs) / 2):  # Nyquist rate
-        raise ValueError(
-            "The Nyquist rate is {}, byt fmax={}".format(float(fs) / 2, fmax)
-        )
+    if not (fmax <= fs / 2):  # Nyquist rate
+        raise ValueError("The Nyquist rate is {}, byt fmax={}".format(fs / 2, fmax))
 
     g = np.log(fmax) - np.log(fmin)  # (12)
-    f = fmin * np.exp(jj * g / float(Jdes - 1))  # (13)
-    rp = (
-        fmin * np.exp(jj * g / float(Jdes - 1)) * (np.exp(g / float(Jdes - 1)) - 1)
-    )  # (15)
+    f = fmin * np.exp(jj * g / (Jdes - 1))  # (13)
+    rp = fmin * np.exp(jj * g / (Jdes - 1)) * (np.exp(g / (Jdes - 1)) - 1)  # (15)
 
     # r' now contains the 'desired resolutions' for each frequency bin, given the rule
     # that we want the resolution to be equal to the difference in frequency between
     # adjacent bins. Below we adjust this to account for the minimum and desired number
     # of averages.
 
-    ravg = (float(fs) / N) * (1 + (1 - xi) * (Kdes - 1))  # (16)
-    rmin = (float(fs) / N) * (1 + (1 - xi) * (Kmin - 1))  # (17)
+    ravg = (fs / N) * (1 + (1 - xi) * (Kdes - 1))  # (16)
+    rmin = (fs / N) * (1 + (1 - xi) * (Kmin - 1))  # (17)
 
     case1 = rp >= ravg  # (18)
     case2 = np.logical_and(rp < ravg, np.sqrt(ravg * rp) > rmin)  # (18)
@@ -122,8 +116,8 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
     # the data, the constraint of the minimum number of averages, and the desired number
     # of averages.  We now round r'' to the nearest bin of the DFT to get our final
     # resolutions r.
-    L = np.around(float(fs) / rpp).astype(int)  # segment lengths (19)
-    r = float(fs) / L  # actual resolution (20)
+    L = np.around(fs / rpp).astype(int)  # segment lengths (19)
+    r = fs / L  # actual resolution (20)
     m = f / r  # Fourier Tranform bin number (7)
 
     # Allocate space for some results
@@ -139,7 +133,7 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
 
         # Calculate the number of segments
         D = int(np.around((1 - xi) * L[jj]))  # (2)
-        K = int(np.floor((N - L[jj]) / float(D) + 1))  # (3)
+        K = int(np.floor((N - L[jj]) / D + 1))  # (3)
 
         # reshape the time series so each column is one segment  <-- FIXME: This is not
         # clear.
