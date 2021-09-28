@@ -99,7 +99,7 @@ def lpsd(
     if not fmin:
         fmin = fs / N  # Lowest frequency possible
     if not fmax:
-        fmax <= fs / 2  # Nyquist rate
+        fmax = fs / 2  # Nyquist rate
 
     g = np.log(fmax) - np.log(fmin)  # (12)
     f = fmin * np.exp(jj * g / (Jdes - 1))  # (13)
