@@ -2,7 +2,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from lpsd import lpsd
-from scipy import signal
+from scipy.signal import 
 
 
 def main():

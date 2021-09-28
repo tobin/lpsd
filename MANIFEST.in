@@ -1,0 +1,4 @@
+include versioneer.py
+include lpsd/_version.py
+include README.md
+include LICENSE

@@ -1,3 +1,5 @@
+"""Method for calulating power spectrum on logarithmic frequency axis."""
+
 import numpy as np
 from scipy.signal import get_window
 
