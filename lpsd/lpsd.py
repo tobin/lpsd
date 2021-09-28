@@ -158,6 +158,7 @@ def lpsd(
 
         # Compute the discrete Fourier transform
         w = get_window(window, L[jj])  # (5)
+        # w = np.hanning(L[jj])
         sinusoid = np.exp(
             -2j * np.pi * np.arange(L[jj])[:, np.newaxis] * m[jj] / L[jj]
         )  # (6)
@@ -174,9 +175,9 @@ def lpsd(
         # Calibration of spectral estimates
     if scaling == "spectrum":
         C = 2.0 / (S1 ** 2)  # (28)
-        Pxx = C * Pxx
+        Pxx = Pxx * C
     elif scaling == "density":
         C = 2.0 / (fs * S2)  # (29)
-        Pxx = C / Pxx
+        Pxx = Pxx * C
 
-    return Pxx, f
+    return f, Pxx
