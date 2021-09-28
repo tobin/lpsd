@@ -158,7 +158,6 @@ def lpsd(
 
         # Compute the discrete Fourier transform
         w = get_window(window, L[jj])  # (5)
-        # w = np.hanning(L[jj])
         sinusoid = np.exp(
             -2j * np.pi * np.arange(L[jj])[:, np.newaxis] * m[jj] / L[jj]
         )  # (6)
