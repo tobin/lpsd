@@ -6,8 +6,8 @@ from scipy.signal import get_window
 
 def lpsd(
     x,
-    fs,
-    window,
+    fs=1.0,
+    window="hann",
     fmin=None,
     fmax=None,
     Jdes=1000,
@@ -27,15 +27,16 @@ def lpsd(
         values for N range from 10^4 to >10^6" [1]
 
     fs : float
-        Sampling frequency of the `x` time series.
+        Sampling frequency of the `x` time series. Defaults to 1.0.
 
     window : str
         Desired window to use. If `window` is a string or tuple, it is passed to
         `scipy.signal.get_window` to generate the window values, which are DFT-even by
         default. See `scipy.signal.get_window` for a list of windows and required
-        parameters. "Choose a window function w(j, l) to reduce spectral leakage within
-        the estimate. ... The computations of the window function will be performed when
-        the segment lengths L(j) have been determined." [1]
+        parameters. Defaults to a Hann window. "Choose a window function w(j, l) to
+        reduce spectral leakage within the estimate. ... The computations of the window
+        function will be performed when the segment lengths L(j) have been determined."
+        [1]
 
     fmin, fmax : float, optional
         Lowest and highest frequency to estimate. Defaults to `fs / len(x)` and the
