@@ -1,64 +1,76 @@
-# coding=utf-8
 import numpy as np
 
 
 def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
     """
-    LPSD Power spectrum estimation with a logarithmic frequency axis.
+    Compute LPSD power spectrum estimation with a logarithmic frequency axis.
 
-    Estimates the power spectrum or power spectral density of the time series x at JDES frequencies equally spaced (on
-    a logarithmic scale) from FMIN to FMAX.
+    Estimates the power spectrum or power spectral density of the time series x at JDES
+    frequencies equally spaced (on a logarithmic scale) from FMIN to FMAX.
 
-    Originally at: https://github.com/tobin/lpsd
-    Translated from Matlab to Python by Rudolf W Byker in 2018.
+    Parameters
+    ----------
+    x : array_like
+        time series to be transformed. "We assume to have a long stream x(n),
+        n=0, ..., N-1 of equally spaced input data sampled with frequency fs. Typical
+        values for N range from 10^4 to >10^6" - Section 8 of [1]
 
-    The implementation follows references [1] and [2] quite closely; in
-    particular, the variable names used in the program generally correspond
-    to the variables in the paper; and the corresponding equation numbers
-    are indicated in the comments.
+    windowfcn : callable
+        Function handle to windowing function (e.g. np.hanning) "Choose a window
+        function w(j, l) to reduce spectral leakage within the estimate. ... The
+        computations of the window function will be performed when the segment lengths
+        L(j) have been determined." - Section 8 of [1]
 
-    References:
-      [1] Michael Tröbs and Gerhard Heinzel, "Improved spectrum estimation
-      from digitized time series on a logarithmic frequency axis," in
-      Measurement, vol 39 (2006), pp 120-129.
+    fmin, fmax : float
+        Lowest and highest frequency to estimate. "... we propose not to use the first
+        few frequency bins. The first frequency bin that yields unbiased spectral
+        estimates depends on the window function used. The bin is given by the effective
+        half-width of the window transfer function." - Section 7 of [1].
+
+    Jdes : int
+        Desired number of Fourier frequencies. "A typical value for J is 1000" - Section
+        8 of [1]
+
+    Kdes : int
+        Desired number of averages
+
+    Kmin : int
+        Minimum number of averages
+
+    fs : float
+        Sampling rate
+
+    xi : float
+        Fractional overlap between segments (0 <= xi < 1). See Figures 5 and 6. "The
+        amount of overlap is a trade-off between computational effort and flatness of
+        the data weighting." [1]
+
+    Returns
+    -------
+    Pxx : 1d-array
+        Vector of (uncalibrated) power spectrum estimates
+    f : 1-d array
+        Vector of frequencies corresponding to Pxx
+    C : dict
+        Dict containing calibration factors to calibrate Pxx into either power spectral
+        density or power spectrum.
+
+    Notes
+    -----
+    The implementation follows references [1] and [2] quite closely; in particular, the
+    variable names used in the program generally correspond to the variables in the
+    paper; and the corresponding equation numbers are indicated in the comments.
+
+    References
+    ----------
+      [1] Michael Tröbs and Gerhard Heinzel, "Improved spectrum estimation  from
+      digitized time series on a logarithmic frequency axis" in Measurement, vol 39
+      (2006), pp 120-129.
         * http://dx.doi.org/10.1016/j.measurement.2005.10.010
         * http://pubman.mpdl.mpg.de/pubman/item/escidoc:150688:1
 
-      [2] Michael Tröbs and Gerhard Heinzel, Corrigendum to "Improved
-      spectrum estimation from digitized time series on a logarithmic
-      frequency axis."
-
-    Author(s): Tobin Fricke <tobin.fricke@ligo.org> 2012-04-17
-
-    :param x: time series to be transformed. "We assume to have a long stream x(n), n=0, ..., N-1 of equally spaced
-        input data sampled with frequency fs. Typical values for N range from 10^4 to >10^6" - Section 8 of [1]
-
-    :param windowfcn: function handle to windowing function (e.g. @hanning) "Choose a window function w(j, l) to reduce
-        spectral leakage within the estimate. ... The computations of the window function will be performed when the
-        segment lengths L(j) have been determined." - Section 8 of [1]
-
-    :param fmin: lowest frequency to estimate. "... we propose not to use the first few frequency bins. The first
-        frequency bin that yields unbiased spectral estimates depends on the window function used. The bin is given by
-        the effective half-width of the window transfer function." - Section 7 of [1].
-
-    :param fmax: highest frequency to estimate
-
-    :param Jdes: desired number of Fourier frequencies. "A typical value for J is 1000" - Section 8 of [1]
-
-    :param Kdes: desired number of averages
-
-    :param Kmin: minimum number of averages
-
-    :param fs: sampling rate
-
-    :param xi: fractional overlap between segments (0 <= xi < 1). See Figures 5 and 6. "The amount of overlap is a
-        trade-off between computational effort and flatness of the data weighting." [1]
-
-    :return: Pxx, f, C
-
-        - Pxx: vector of (uncalibrated) power spectrum estimates
-        - f: vector of frequencies corresponding to Pxx
-        - C: dict containing calibration factors to calibrate Pxx into either power spectral density or power spectrum.
+      [2] Michael Tröbs and Gerhard Heinzel, Corrigendum to "Improved spectrum
+      estimation from digitized time series on a logarithmic frequency axis."
 
     """
 
@@ -125,7 +137,7 @@ def lpsd(x, windowfcn, fmin, fmax, Jdes, Kdes, Kmin, fs, xi):
     S1 = np.empty(Jdes)
     S2 = np.empty(Jdes)
 
-    # Loop over frequencies.  For each frequency, we basically conduct Welch's method
+    # Loop over frequencies. For each frequency, we basically conduct Welch's method
     # with the fourier transform length chosen differently for each frequency.
     # TODO: Try to eliminate the for loop completely, since it is unpythonic and slow.
     # Maybe write doctests first...
