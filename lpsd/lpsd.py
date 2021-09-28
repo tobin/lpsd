@@ -2,7 +2,7 @@ import numpy as np
 from scipy.signal import get_window
 
 
-def lpsd(x, fs, window, fmin, fmax, Jdes=1000, Kdes=100, Kmin=1, xi=0.5):
+def lpsd(x, fs, window, fmin=None, fmax=None, Jdes=1000, Kdes=100, Kmin=1, xi=0.5):
     """
     Compute the LPSD power spectrum estimation with a logarithmic frequency axis.
 
