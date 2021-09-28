@@ -2,7 +2,18 @@ import numpy as np
 from scipy.signal import get_window
 
 
-def lpsd(x, fs, window, fmin=None, fmax=None, Jdes=1000, Kdes=100, Kmin=1, xi=0.5):
+def lpsd(
+    x,
+    fs,
+    window,
+    fmin=None,
+    fmax=None,
+    Jdes=1000,
+    Kdes=100,
+    Kmin=1,
+    xi=0.5,
+    scaling="density",
+):
     """
     Compute the LPSD power spectrum estimation with a logarithmic frequency axis.
 
@@ -46,15 +57,18 @@ def lpsd(x, fs, window, fmin=None, fmax=None, Jdes=1000, Kdes=100, Kmin=1, xi=0.
          amount of overlap is a trade-off between computational effort and flatness of
         the data weighting." [1]. See Figures 5 and 6 [1].
 
+    scaling : {'density', 'spectrum'}, optional
+        Selects between computing the power spectral density ('density') where `Pxx` has
+        units of V**2/Hz and computing the power spectrum ('spectrum') where `Pxx` has
+        units of V**2, if `x` is measured in V and `fs` is measured in Hz. Defaults to
+        'density'.
+
     Returns
     -------
-    Pxx : 1d-array
-        Vector of (uncalibrated) power spectrum estimates
     f : 1-d array
         Vector of frequencies corresponding to Pxx
-    C : dict
-        Dict containing calibration factors to calibrate Pxx into either power spectral
-        density or power spectrum.
+    Pxx : 1d-array
+        Vector of (uncalibrated) power spectrum estimates
 
     Notes
     -----
@@ -74,6 +88,8 @@ def lpsd(x, fs, window, fmin=None, fmax=None, Jdes=1000, Kdes=100, Kmin=1, xi=0.
       estimation from digitized time series on a logarithmic frequency axis."
 
     """
+
+    assert scaling in ["density", "spectrum"]
 
     N = len(x)  # Table 1
     jj = np.arange(Jdes, dtype=int)  # Table 1
@@ -153,7 +169,12 @@ def lpsd(x, fs, window, fmin=None, fmax=None, Jdes=1000, Kdes=100, Kmin=1, xi=0.
         S1[jj] = np.sum(w)  # (23)
         S2[jj] = np.sum(w ** 2)  # (24)
 
-    # Calculate the calibration factors
-    C = {"PS": 2.0 / (S1 ** 2), "PSD": 2.0 / (fs * S2)}  # (28)  # (29)
+        # Calibration of spectral estimates
+    if scaling == "spectrum":
+        C = 2.0 / (S1 ** 2)  # (28)
+        Pxx = C * Pxx
+    elif scaling == "density":
+        C = 2.0 / (fs * S2)  # (29)
+        Pxx = C / Pxx
 
-    return Pxx, f, C
+    return Pxx, f
