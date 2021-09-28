@@ -75,22 +75,6 @@ def lpsd(x, fs, window, fmin, fmax, Jdes=1000, Kdes=100, Kmin=1, xi=0.5):
 
     """
 
-    # Sanity check the input arguments
-    if not (fmax > fmin):
-        raise ValueError("fmax must be greater than fmin")
-    if not (Jdes > 0):
-        raise ValueError("Jdes must be greater than 0")
-    if not (Kdes > 0):
-        raise ValueError("Kdes must be greater than 0")
-    if not (Kmin > 0):
-        raise ValueError("Kmin must be greater than 0")
-    if not (Kdes >= Kmin):
-        raise ValueError("Kdes must be greater than or equal to Kmin")
-    if not (fs > 0):
-        raise ValueError("fs must be greater than 0")
-    if not (0 <= xi < 1):
-        raise ValueError("xi must be: 0 <= xi 1")
-
     N = len(x)  # Table 1
     jj = np.arange(Jdes, dtype=int)  # Table 1
 
